@@ -14,6 +14,9 @@ from common.agent import Agent
 from common.evaluator import evaluate_agent
 from torch.nn.parameter import Parameter
 
+import matplotlib.pyplot as plt
+from matplotlib import animation
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--n_eval_episodes", default=20, type=int)
 parser.add_argument("--path", default='logs/input_output/', type=str)
@@ -96,7 +99,7 @@ def main():
 
     # Environment
     env_name = 'CartPole-v0'
-    env = gym.make(env_name)
+    env = gym.make(env_name, render_mode="rgb_array")
 
     # Network
     with open(args.path + 'config.yaml', 'r') as f:
@@ -111,8 +114,23 @@ def main():
     agent = Agent(net)
 
     # Evaluation
-    result = evaluate_agent(env, agent, args.n_eval_episodes)
+    result, frames = evaluate_agent(env, agent, args.n_eval_episodes)
+    save_frames_as_gif(frames)
     print('Average reward : {}'.format(result['reward']))
+
+def save_frames_as_gif(frames, path='./', filename='gym_animation.gif'):
+
+    #Mess with this to change frame size
+    plt.figure(figsize=(frames[0].shape[1] / 72.0, frames[0].shape[0] / 72.0), dpi=72)
+
+    patch = plt.imshow(frames[0])
+    plt.axis('off')
+
+    def animate(i):
+        patch.set_data(frames[i])
+
+    anim = animation.FuncAnimation(plt.gcf(), animate, frames = len(frames), interval=50)
+    anim.save(path + filename, writer='imagemagick', fps=60)
 
 
 if __name__ == '__main__':

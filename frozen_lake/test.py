@@ -78,17 +78,20 @@ class QuantumNet(nn.Module):
 def main():
 
     # Environment
-    env_name = 'FrozenLake-v0'
+    env_name = 'FrozenLake-v1'
     env = gym.make(env_name)
     env = BinaryWrapper(env)
 
     # Network
-    with open(args.path + 'config.yaml', 'r') as f:
-        hparams = yaml.safe_load(f)
+    # with open(args.path + 'config.yaml', 'r') as f:
+    #     hparams = yaml.safe_load(f)
 
-    net = QuantumNet(hparams['n_layers'])
-    state_dict = torch.load(args.path + 'episode_final.pt')
+    # net = QuantumNet(hparams['n_layers'])
+    net = QuantumNet(5)
+    # state_dict = torch.load(args.path + 'episode_final.pt')
+    state_dict = torch.load(args.path + 'episode_2100.pt', map_location=torch.device('cpu'))
     net.load_state_dict(state_dict)
+    print("Loaded model from {}".format(args.path + 'episode_2100.pt'))
 
     # Agent
     agent = Agent(net)

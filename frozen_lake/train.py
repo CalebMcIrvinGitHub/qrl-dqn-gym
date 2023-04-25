@@ -95,7 +95,7 @@ class QuantumNet(nn.Module):
 def main():
 
     # Environment
-    env_name = 'FrozenLake-v0'
+    env_name = 'FrozenLake-v1'
     env = gym.make(env_name)
     env = BinaryWrapper(env)
 

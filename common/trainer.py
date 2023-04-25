@@ -110,12 +110,13 @@ class Trainer:
     def reset(self):
         self.global_step = 0
         self.episode_count = 0
-        self.env.seed(123)
+        # self.env.seed(123)
         self.n_actions = self.env.action_space.n
         state = self.env.reset()
         while len(self.memory) < self.buffer_size:
             action = self.agent.get_random_action()
-            next_state, reward, done, _ = self.env.step(action)
+            next_state, reward, terminated, truncated, _ = self.env.step(action)
+            done = terminated or truncated
             self.memory.push(state, action, reward, done, next_state)
             if done:
                 state = self.env.reset()
@@ -167,7 +168,8 @@ class Trainer:
 
             # take action
             action = self.agent(state, self.device)
-            next_state, reward, done, _ = self.env.step(action)
+            next_state, reward, terminated, truncated, _ = self.env.step(action)
+            done = terminated or truncated
 
             # update memory
             self.memory.push(state, action, reward, done, next_state)
@@ -211,7 +213,8 @@ class Trainer:
             episode_reward.append(0)
             while not done:
                 action = self.agent.get_action(state, self.device)
-                next_state, reward, done, _ = self.env.step(action)
+                next_state, reward, terminated, truncated, _ = self.env.step(action)
+                done = terminated or truncated
                 state = next_state
                 episode_steps[-1] += 1
                 episode_reward[-1] += reward
